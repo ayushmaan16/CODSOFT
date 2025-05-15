@@ -1,0 +1,68 @@
+package CodSoft;
+import java.util.Random;
+import java.util.Scanner;
+
+public class NumberGuessGame {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        Random randomGenerator = new Random();
+
+        final int maxChances = 5;
+        int totalScore = 0;
+        boolean keepPlaying = true;
+
+        System.out.println("=== Welcome to the Number Guessing Game ===");
+
+        while (keepPlaying) {
+            int secretNumber = randomGenerator.nextInt(100) + 1;
+            int chancesLeft = maxChances;
+            boolean numberGuessed = false;
+
+            System.out.println("\nI've picked a number between 1 and 100.");
+            System.out.println("You have " + maxChances + " tries to figure it out.");
+
+            while (chancesLeft > 0) {
+                System.out.print("Your guess: ");
+                int guess;
+
+                // Check for valid number input
+                if (input.hasNextInt()) {
+                    guess = input.nextInt();
+                } else {
+                    System.out.println("Oops! That doesn't look like a number. Try again.");
+                    input.next(); // Clear the invalid input
+                    continue;
+                }
+
+                if (guess == secretNumber) {
+                    System.out.println("Nice! You got it right.");
+                    numberGuessed = true;
+                    totalScore++;
+                    break;
+                } else if (guess < secretNumber) {
+                    System.out.println("Too low. Try a bit higher.");
+                } else {
+                    System.out.println("Too high. Try a bit lower.");
+                }
+
+                chancesLeft--;
+                System.out.println("Tries left: " + chancesLeft);
+            }
+
+            if (!numberGuessed) {
+                System.out.println("Out of tries! The number was: " + secretNumber);
+            }
+
+            System.out.println("Your current score: " + totalScore);
+
+            System.out.print("Want to play another round? (yes/no): ");
+            String answer = input.next();
+
+            keepPlaying = answer.equalsIgnoreCase("yes");
+        }
+
+        System.out.println("Thanks for playing! Final score: " + totalScore);
+        input.close();
+    }
+}
