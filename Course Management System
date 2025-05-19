@@ -1,0 +1,240 @@
+package CodSoft;
+import java.util.*;
+
+//Represents a course with details like title, capacity, and schedule
+class Course {
+ String courseCode;
+ String title;
+ String description;
+ int capacity;
+ String schedule;
+ List<String> registeredStudents;
+
+ public Course(String courseCode, String title, String description, int capacity, String schedule) {
+     this.courseCode = courseCode;
+     this.title = title;
+     this.description = description;
+     this.capacity = capacity;
+     this.schedule = schedule;
+     this.registeredStudents = new ArrayList<>();
+ }
+
+ // Check if there's room for more students
+ public boolean isAvailable() {
+     return registeredStudents.size() < capacity;
+ }
+
+ // Register a student if space is available
+ public void registerStudent(String studentId) {
+     if (isAvailable()) {
+         registeredStudents.add(studentId);
+     }
+ }
+
+ // Remove a student from this course
+ public void removeStudent(String studentId) {
+     registeredStudents.remove(studentId);
+ }
+
+ // Print all details of this course
+ public void displayInfo() {
+     System.out.println("Course Code: " + courseCode);
+     System.out.println("Title: " + title);
+     System.out.println("Description: " + description);
+     System.out.println("Schedule: " + schedule);
+     System.out.println("Available Slots: " + (capacity - registeredStudents.size()));
+     System.out.println("------------------------------------");
+ }
+}
+
+//Represents a student with basic info and registered courses
+class Student {
+ String studentId;
+ String name;
+ List<String> registeredCourses;
+
+ public Student(String studentId, String name) {
+     this.studentId = studentId;
+     this.name = name;
+     this.registeredCourses = new ArrayList<>();
+ }
+
+ public void addCourse(String courseCode) {
+     registeredCourses.add(courseCode);
+ }
+
+ public void removeCourse(String courseCode) {
+     registeredCourses.remove(courseCode);
+ }
+
+ public void displayCourses() {
+     if (registeredCourses.isEmpty()) {
+         System.out.println("No courses registered.");
+     } else {
+         System.out.println("Registered Courses: " + registeredCourses);
+     }
+ }
+}
+
+//Stores and manages all courses
+class CourseDatabase {
+ Map<String, Course> courses;
+
+ public CourseDatabase() {
+     courses = new HashMap<>();
+ }
+
+ public void addCourse(Course course) {
+     courses.put(course.courseCode, course);
+ }
+
+ public Course getCourse(String courseCode) {
+     return courses.get(courseCode);
+ }
+
+ public void listCourses() {
+     for (Course course : courses.values()) {
+         course.displayInfo();
+     }
+ }
+}
+
+//Stores and manages all students
+class StudentDatabase {
+ Map<String, Student> students;
+
+ public StudentDatabase() {
+     students = new HashMap<>();
+ }
+
+ public void addStudent(Student student) {
+     students.put(student.studentId, student);
+ }
+
+ public Student getStudent(String studentId) {
+     return students.get(studentId);
+ }
+}
+
+//Main class handling menu interaction
+public class CourseManagementSystem {
+ public static void main(String[] args) {
+     Scanner sc = new Scanner(System.in);
+     CourseDatabase courseDb = new CourseDatabase();
+     StudentDatabase studentDb = new StudentDatabase();
+
+     // Adding sample courses
+     courseDb.addCourse(new Course("cs101", "Data Structures", "Study of data structures", 3, "Mon-Wed 10AM"));
+     courseDb.addCourse(new Course("cs102", "Operating Systems", "Intro to OS concepts", 2, "Tue-Thu 12PM"));
+
+     // Adding sample students
+     studentDb.addStudent(new Student("s001", "arjun"));
+     studentDb.addStudent(new Student("s002", "vaishali"));
+
+     // Main menu loop
+     while (true) {
+    	 System.out.println("\nMenu:");
+         System.out.println("1. List Courses");
+         System.out.println("2. Register for a Course");
+         System.out.println("3. Drop a Course");
+         System.out.println("4. View Registered Courses");
+         System.out.println("5. Register New Student");
+         System.out.println("6. Exit");
+         System.out.print("Enter your choice: ");
+         
+         int choice = sc.nextInt();
+         sc.nextLine(); // consume leftover newline
+
+         switch (choice) {
+             case 1:
+                 // Show all courses
+                 courseDb.listCourses();
+                 break;
+
+             case 2:
+                 // Handle course registration
+                 System.out.print("Enter student ID: ");
+                 String sid = sc.nextLine();
+                 Student student = studentDb.getStudent(sid);
+
+                 if (student == null) {
+                     System.out.println("Student not found.");
+                     break;
+                 }
+
+                 System.out.print("Enter course code to register: ");
+                 String ccode = sc.nextLine();
+                 Course course = courseDb.getCourse(ccode);
+
+                 if (course != null && course.isAvailable()) {
+                     course.registerStudent(sid);
+                     student.addCourse(ccode);
+                     System.out.println("Registered for course: " + ccode);
+                 } else {
+                     System.out.println("Course full or invalid code.");
+                 }
+                 break;
+
+             case 3:
+                 // Handle dropping a course
+                 System.out.print("Enter student ID: ");
+                 sid = sc.nextLine();
+                 student = studentDb.getStudent(sid);
+
+                 if (student == null) {
+                     System.out.println("Student not found.");
+                     break;
+                 }
+
+                 System.out.print("Enter course code to drop: ");
+                 ccode = sc.nextLine();
+                 course = courseDb.getCourse(ccode);
+
+                 if (course != null && student.registeredCourses.contains(ccode)) {
+                     course.removeStudent(sid);
+                     student.removeCourse(ccode);
+                     System.out.println("Dropped course: " + ccode);
+                 } else {
+                     System.out.println("Invalid operation. Either course doesn't exist or not registered.");
+                 }
+                 break;
+
+             case 4:
+                 // View student's registered courses
+                 System.out.print("Enter student ID: ");
+                 sid = sc.nextLine();
+                 student = studentDb.getStudent(sid);
+
+                 if (student != null) {
+                     student.displayCourses();
+                 } else {
+                     System.out.println("Student not found.");
+                 }
+                 break;
+                 
+             case 5:
+            	    System.out.print("Enter new student ID: ");
+            	    String newId = sc.nextLine();
+            	    System.out.print("Enter student name: ");
+            	    String newName = sc.nextLine();
+
+            	    if (studentDb.getStudent(newId) != null) {
+            	        System.out.println("Student ID already exists.");
+            	    } else {
+            	        studentDb.addStudent(new Student(newId, newName));
+            	        System.out.println("Student registered successfully.");
+            	    }
+            	    break;
+
+
+             case 6:
+                 // Exit the program
+                 System.out.println("Thanks for using the course management system.");
+                 return;
+
+             default:
+                 System.out.println("Invalid choice. Try again.");
+         }
+     }
+ }
+}
